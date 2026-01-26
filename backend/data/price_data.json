@@ -1,0 +1,426 @@
+{
+    "market_prices": {
+        "tomato": {
+            "Mumbai": {
+                "current": 45,
+                "min": 30,
+                "max": 70,
+                "trend": "stable"
+            },
+            "Delhi": {
+                "current": 50,
+                "min": 35,
+                "max": 75,
+                "trend": "rising"
+            },
+            "Bangalore": {
+                "current": 40,
+                "min": 25,
+                "max": 60,
+                "trend": "falling"
+            },
+            "Chennai": {
+                "current": 55,
+                "min": 40,
+                "max": 80,
+                "trend": "stable"
+            },
+            "Kolkata": {
+                "current": 48,
+                "min": 32,
+                "max": 68,
+                "trend": "rising"
+            },
+            "default": {
+                "current": 45,
+                "min": 30,
+                "max": 70,
+                "trend": "stable"
+            }
+        },
+        "onion": {
+            "Mumbai": {
+                "current": 35,
+                "min": 25,
+                "max": 60,
+                "trend": "stable"
+            },
+            "Delhi": {
+                "current": 40,
+                "min": 30,
+                "max": 70,
+                "trend": "rising"
+            },
+            "Bangalore": {
+                "current": 38,
+                "min": 28,
+                "max": 55,
+                "trend": "stable"
+            },
+            "Chennai": {
+                "current": 42,
+                "min": 30,
+                "max": 65,
+                "trend": "falling"
+            },
+            "Kolkata": {
+                "current": 45,
+                "min": 35,
+                "max": 75,
+                "trend": "rising"
+            },
+            "default": {
+                "current": 40,
+                "min": 28,
+                "max": 65,
+                "trend": "stable"
+            }
+        },
+        "potato": {
+            "Mumbai": {
+                "current": 30,
+                "min": 20,
+                "max": 45,
+                "trend": "stable"
+            },
+            "Delhi": {
+                "current": 25,
+                "min": 18,
+                "max": 40,
+                "trend": "stable"
+            },
+            "Bangalore": {
+                "current": 35,
+                "min": 25,
+                "max": 50,
+                "trend": "rising"
+            },
+            "Chennai": {
+                "current": 32,
+                "min": 22,
+                "max": 48,
+                "trend": "stable"
+            },
+            "Kolkata": {
+                "current": 28,
+                "min": 18,
+                "max": 42,
+                "trend": "falling"
+            },
+            "default": {
+                "current": 30,
+                "min": 20,
+                "max": 45,
+                "trend": "stable"
+            }
+        },
+        "mango": {
+            "Mumbai": {
+                "current": 120,
+                "min": 80,
+                "max": 200,
+                "trend": "seasonal"
+            },
+            "Delhi": {
+                "current": 150,
+                "min": 100,
+                "max": 250,
+                "trend": "seasonal"
+            },
+            "Bangalore": {
+                "current": 100,
+                "min": 70,
+                "max": 180,
+                "trend": "seasonal"
+            },
+            "Chennai": {
+                "current": 90,
+                "min": 60,
+                "max": 160,
+                "trend": "seasonal"
+            },
+            "Kolkata": {
+                "current": 130,
+                "min": 90,
+                "max": 220,
+                "trend": "seasonal"
+            },
+            "default": {
+                "current": 120,
+                "min": 80,
+                "max": 200,
+                "trend": "seasonal"
+            }
+        },
+        "banana": {
+            "Mumbai": {
+                "current": 45,
+                "min": 30,
+                "max": 60,
+                "trend": "stable"
+            },
+            "Delhi": {
+                "current": 50,
+                "min": 35,
+                "max": 70,
+                "trend": "stable"
+            },
+            "Bangalore": {
+                "current": 40,
+                "min": 25,
+                "max": 55,
+                "trend": "stable"
+            },
+            "Chennai": {
+                "current": 35,
+                "min": 25,
+                "max": 50,
+                "trend": "stable"
+            },
+            "Kolkata": {
+                "current": 48,
+                "min": 32,
+                "max": 65,
+                "trend": "stable"
+            },
+            "default": {
+                "current": 45,
+                "min": 30,
+                "max": 60,
+                "trend": "stable"
+            }
+        },
+        "rice": {
+            "Mumbai": {
+                "current": 55,
+                "min": 40,
+                "max": 90,
+                "trend": "stable"
+            },
+            "Delhi": {
+                "current": 50,
+                "min": 35,
+                "max": 85,
+                "trend": "stable"
+            },
+            "Bangalore": {
+                "current": 60,
+                "min": 45,
+                "max": 100,
+                "trend": "rising"
+            },
+            "Chennai": {
+                "current": 52,
+                "min": 38,
+                "max": 88,
+                "trend": "stable"
+            },
+            "Kolkata": {
+                "current": 48,
+                "min": 35,
+                "max": 80,
+                "trend": "falling"
+            },
+            "default": {
+                "current": 55,
+                "min": 40,
+                "max": 90,
+                "trend": "stable"
+            }
+        },
+        "wheat": {
+            "Mumbai": {
+                "current": 35,
+                "min": 28,
+                "max": 50,
+                "trend": "stable"
+            },
+            "Delhi": {
+                "current": 30,
+                "min": 25,
+                "max": 45,
+                "trend": "stable"
+            },
+            "Bangalore": {
+                "current": 38,
+                "min": 30,
+                "max": 55,
+                "trend": "rising"
+            },
+            "Chennai": {
+                "current": 40,
+                "min": 32,
+                "max": 58,
+                "trend": "stable"
+            },
+            "Kolkata": {
+                "current": 32,
+                "min": 26,
+                "max": 48,
+                "trend": "stable"
+            },
+            "default": {
+                "current": 35,
+                "min": 28,
+                "max": 50,
+                "trend": "stable"
+            }
+        },
+        "turmeric": {
+            "Mumbai": {
+                "current": 180,
+                "min": 120,
+                "max": 280,
+                "trend": "stable"
+            },
+            "Delhi": {
+                "current": 200,
+                "min": 140,
+                "max": 300,
+                "trend": "rising"
+            },
+            "Bangalore": {
+                "current": 160,
+                "min": 100,
+                "max": 250,
+                "trend": "stable"
+            },
+            "Chennai": {
+                "current": 150,
+                "min": 90,
+                "max": 240,
+                "trend": "falling"
+            },
+            "Kolkata": {
+                "current": 190,
+                "min": 130,
+                "max": 290,
+                "trend": "stable"
+            },
+            "default": {
+                "current": 180,
+                "min": 120,
+                "max": 280,
+                "trend": "stable"
+            }
+        },
+        "chilli": {
+            "Mumbai": {
+                "current": 250,
+                "min": 180,
+                "max": 380,
+                "trend": "rising"
+            },
+            "Delhi": {
+                "current": 280,
+                "min": 200,
+                "max": 420,
+                "trend": "rising"
+            },
+            "Bangalore": {
+                "current": 220,
+                "min": 150,
+                "max": 340,
+                "trend": "stable"
+            },
+            "Chennai": {
+                "current": 200,
+                "min": 140,
+                "max": 320,
+                "trend": "stable"
+            },
+            "Kolkata": {
+                "current": 260,
+                "min": 190,
+                "max": 400,
+                "trend": "rising"
+            },
+            "default": {
+                "current": 250,
+                "min": 180,
+                "max": 380,
+                "trend": "rising"
+            }
+        }
+    },
+    "seasonal_factors": {
+        "January": {
+            "vegetables": 1.0,
+            "fruits": 0.9,
+            "grains": 1.0,
+            "spices": 1.0
+        },
+        "February": {
+            "vegetables": 0.95,
+            "fruits": 0.9,
+            "grains": 1.0,
+            "spices": 1.0
+        },
+        "March": {
+            "vegetables": 0.9,
+            "fruits": 1.0,
+            "grains": 1.0,
+            "spices": 1.05
+        },
+        "April": {
+            "vegetables": 1.1,
+            "fruits": 1.1,
+            "grains": 1.0,
+            "spices": 1.05
+        },
+        "May": {
+            "vegetables": 1.2,
+            "fruits": 1.2,
+            "grains": 1.0,
+            "spices": 1.0
+        },
+        "June": {
+            "vegetables": 1.15,
+            "fruits": 1.0,
+            "grains": 1.05,
+            "spices": 1.0
+        },
+        "July": {
+            "vegetables": 1.1,
+            "fruits": 0.95,
+            "grains": 1.1,
+            "spices": 1.0
+        },
+        "August": {
+            "vegetables": 1.0,
+            "fruits": 0.9,
+            "grains": 1.1,
+            "spices": 0.95
+        },
+        "September": {
+            "vegetables": 0.95,
+            "fruits": 0.85,
+            "grains": 1.0,
+            "spices": 0.95
+        },
+        "October": {
+            "vegetables": 0.9,
+            "fruits": 0.9,
+            "grains": 0.95,
+            "spices": 1.0
+        },
+        "November": {
+            "vegetables": 0.95,
+            "fruits": 0.95,
+            "grains": 0.95,
+            "spices": 1.05
+        },
+        "December": {
+            "vegetables": 1.0,
+            "fruits": 0.95,
+            "grains": 1.0,
+            "spices": 1.1
+        }
+    },
+    "quality_factors": {
+        "low": 0.7,
+        "medium": 1.0,
+        "high": 1.3,
+        "premium": 1.5
+    }
+}

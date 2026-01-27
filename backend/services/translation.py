@@ -1,7 +1,7 @@
 """
 Multilingual Mandi - Translation Service
 =========================================
-AI-powered translation service using Google Gemini API.
+AI-powered translation service using Google Gemini API (NEW SDK).
 Supports 10 Indian languages with caching for efficiency.
 
 Languages Supported:
@@ -12,7 +12,7 @@ Author: Hackathon Team
 Date: January 2026
 """
 
-import google.generativeai as genai
+from google import genai
 from typing import Optional, Dict
 import hashlib
 import os
@@ -48,41 +48,25 @@ LANGUAGE_LABELS = {
 # In-memory cache for translations (reduces API calls)
 _translation_cache: Dict[str, str] = {}
 
+# Gemini client (initialized lazily)
+_client = None
+
 
 def _get_cache_key(text: str, source_lang: str, target_lang: str) -> str:
-    """
-    Generate a unique cache key for a translation request.
-    Uses MD5 hash of text + languages for efficient lookup.
-    """
+    """Generate a unique cache key for a translation request."""
     content = f"{text}|{source_lang}|{target_lang}"
     return hashlib.md5(content.encode()).hexdigest()
 
 
-def _configure_gemini():
-    """
-    Configure Gemini API with API key from environment.
-    Called once on first translation request.
-    """
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        raise ValueError("GEMINI_API_KEY environment variable is not set")
-    genai.configure(api_key=api_key)
-
-
-# Gemini model instance (initialized lazily)
-_model = None
-
-
-def _get_model():
-    """
-    Get or create Gemini model instance.
-    Uses gemini-pro for text generation.
-    """
-    global _model
-    if _model is None:
-        _configure_gemini()
-        _model = genai.GenerativeModel('gemini-pro')
-    return _model
+def _get_client():
+    """Get or create Gemini client using new SDK."""
+    global _client
+    if _client is None:
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY environment variable is not set")
+        _client = genai.Client(api_key=api_key)
+    return _client
 
 
 async def translate_text(
@@ -99,18 +83,7 @@ async def translate_text(
         target_lang: Target language code (e.g., 'ta', 'te')
     
     Returns:
-        dict: {
-            'translated_text': str,
-            'source_lang': str,
-            'target_lang': str,
-            'cached': bool,
-            'success': bool,
-            'error': str or None
-        }
-    
-    Example:
-        >>> await translate_text("Hello", "en", "hi")
-        {'translated_text': 'नमस्ते', 'source_lang': 'en', 'target_lang': 'hi', 'cached': False, 'success': True}
+        dict with translated_text, source_lang, target_lang, cached, success, error
     """
     # Validate languages
     if source_lang not in SUPPORTED_LANGUAGES:
@@ -158,28 +131,38 @@ async def translate_text(
     
     # Call Gemini API for translation
     try:
-        model = _get_model()
+        client = _get_client()
         
         source_name = SUPPORTED_LANGUAGES[source_lang]
         target_name = SUPPORTED_LANGUAGES[target_lang]
         
-        # Prompt optimized for Indian language translation
-        # WHY: Gemini works better with explicit context and examples
-        prompt = f"""Translate the following text from {source_name} to {target_name}.
+        # Optimized prompt for Indian language translation
+        prompt = f"""You are a professional translator specializing in Indian languages.
 
-Important instructions:
-1. Provide ONLY the translation, no explanations
-2. Preserve the meaning and tone
-3. Use natural, conversational language appropriate for local markets
-4. Keep numbers and product names as-is when appropriate
+Translate the following text from {source_name} to {target_name}.
+
+RULES:
+1. Output ONLY the translation, nothing else
+2. Preserve the meaning, tone and intent
+3. Use natural, conversational language appropriate for local Indian markets
+4. Keep numbers, brand names and product names as-is
+5. For market/mandi context, use commonly understood terms
 
 Text to translate:
-{text}
+"{text}"
 
 Translation:"""
 
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt
+        )
+        
         translated = response.text.strip()
+        
+        # Remove quotes if present
+        if translated.startswith('"') and translated.endswith('"'):
+            translated = translated[1:-1]
         
         # Cache the result
         _translation_cache[cache_key] = translated
@@ -195,7 +178,6 @@ Translation:"""
         
     except Exception as e:
         # Graceful degradation - return original text on error
-        # WHY: Platform should never crash on API failures
         return {
             'translated_text': text,
             'source_lang': source_lang,
@@ -207,42 +189,32 @@ Translation:"""
 
 
 async def detect_language(text: str) -> dict:
-    """
-    Detect the language of the input text using Gemini.
-    
-    Args:
-        text: The text to analyze
-    
-    Returns:
-        dict: {
-            'detected_lang': str (language code),
-            'confidence': float (0-1),
-            'success': bool
-        }
-    """
+    """Detect the language of the input text using Gemini."""
     try:
-        model = _get_model()
+        client = _get_client()
         
         lang_codes = ", ".join(SUPPORTED_LANGUAGES.keys())
         prompt = f"""Detect the language of the following text.
 Respond with ONLY the language code from this list: {lang_codes}
 
-Text: {text}
+Text: "{text}"
 
 Language code:"""
 
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt
+        )
         detected = response.text.strip().lower()
         
         # Validate detected language
         if detected in SUPPORTED_LANGUAGES:
             return {
                 'detected_lang': detected,
-                'confidence': 0.9,  # Gemini doesn't give confidence scores
+                'confidence': 0.9,
                 'success': True
             }
         else:
-            # Default to Hindi if detection fails
             return {
                 'detected_lang': 'hi',
                 'confidence': 0.5,
@@ -251,7 +223,7 @@ Language code:"""
             
     except Exception as e:
         return {
-            'detected_lang': 'en',  # Default fallback
+            'detected_lang': 'en',
             'confidence': 0.0,
             'success': False,
             'error': str(e)
@@ -259,12 +231,7 @@ Language code:"""
 
 
 def get_supported_languages() -> dict:
-    """
-    Get list of all supported languages with their native labels.
-    
-    Returns:
-        dict: {code: {'name': str, 'native': str}}
-    """
+    """Get list of all supported languages with their native labels."""
     return {
         code: {
             'name': SUPPORTED_LANGUAGES[code],
@@ -275,14 +242,6 @@ def get_supported_languages() -> dict:
 
 
 def clear_cache():
-    """
-    Clear the translation cache.
-    Useful for testing or memory management.
-    """
+    """Clear the translation cache."""
     global _translation_cache
     _translation_cache = {}
-
-
-# TODO: Add batch translation for efficiency
-# TODO: Add translation quality scoring
-# TODO: Implement persistent cache (Redis/file-based)

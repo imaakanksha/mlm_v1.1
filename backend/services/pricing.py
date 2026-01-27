@@ -1,28 +1,23 @@
 """
 Multilingual Mandi - Price Discovery Service
 =============================================
-AI-powered price discovery using market data and Gemini AI.
+AI-powered price discovery using market data and Gemini AI (NEW SDK).
 Provides fair price recommendations with confidence scores.
-
-Features:
-- Location-based pricing (Mumbai, Delhi, Bangalore, etc.)
-- Seasonal adjustments
-- Quality-based pricing
-- AI-powered market analysis
 
 Author: Hackathon Team
 Date: January 2026
 """
 
+from google import genai
 import json
 import os
 from typing import Optional, Dict
 from datetime import datetime
-import google.generativeai as genai
 
 # Load price data on module import
 _price_data = None
 _products_data = None
+_client = None
 
 
 def _load_data():
@@ -52,13 +47,14 @@ def _get_products_data():
     return _products_data
 
 
-def _get_gemini_model():
-    """Get Gemini model for AI analysis."""
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        return None
-    genai.configure(api_key=api_key)
-    return genai.GenerativeModel('gemini-pro')
+def _get_client():
+    """Get Gemini client using new SDK."""
+    global _client
+    if _client is None:
+        api_key = os.getenv("GEMINI_API_KEY")
+        if api_key:
+            _client = genai.Client(api_key=api_key)
+    return _client
 
 
 def get_current_month() -> str:
@@ -74,26 +70,6 @@ def calculate_fair_price(
 ) -> dict:
     """
     Calculate fair price for a product based on market data.
-    
-    Args:
-        product_id: Product identifier (e.g., 'tomato', 'onion')
-        location: City name (e.g., 'Mumbai', 'Delhi')
-        quality: Quality level ('low', 'medium', 'high', 'premium')
-        quantity: Quantity in base units
-    
-    Returns:
-        dict: {
-            'product_id': str,
-            'fair_price': float,
-            'price_range': {'min': float, 'max': float},
-            'total_amount': float,
-            'unit': str,
-            'location': str,
-            'trend': str,
-            'factors': list,
-            'confidence': float,
-            'success': bool
-        }
     """
     price_data = _get_price_data()
     products_data = _get_products_data()
@@ -118,7 +94,6 @@ def calculate_fair_price(
     location_price = product_prices.get(location, product_prices.get('default', {}))
     
     if not location_price:
-        # Fallback to product's typical range
         typical = product.get('typical_price_range', {'min': 30, 'max': 60})
         location_price = {
             'current': (typical['min'] + typical['max']) / 2,
@@ -144,7 +119,6 @@ def calculate_fair_price(
     min_price = location_price['min'] * seasonal_multiplier * quality_multiplier
     max_price = location_price['max'] * seasonal_multiplier * quality_multiplier
     
-    # Round to reasonable values
     fair_price = round(adjusted_price, 2)
     min_price = round(min_price, 2)
     max_price = round(max_price, 2)
@@ -190,7 +164,7 @@ def calculate_fair_price(
         'location': location,
         'trend': location_price.get('trend', 'stable'),
         'factors': factors,
-        'confidence': 0.85,  # High confidence when using market data
+        'confidence': 0.85,
         'success': True
     }
 
@@ -202,32 +176,17 @@ async def get_ai_price_analysis(
     quality: str = "medium",
     user_lang: str = "en"
 ) -> dict:
-    """
-    Get AI-powered price analysis using Gemini.
-    Provides detailed market insights and negotiation tips.
+    """Get AI-powered price analysis using Gemini."""
+    client = _get_client()
     
-    Args:
-        product_name: Name of the product (any language)
-        location: City or region
-        quantity: Quantity needed
-        quality: Quality level
-        user_lang: Language for response
-    
-    Returns:
-        dict with AI analysis including fair price, tips, and market insights
-    """
-    model = _get_gemini_model()
-    
-    if not model:
-        # Fallback to basic calculation if API not available
+    if not client:
         return {
             'success': False,
-            'error': 'AI service not configured',
+            'error': 'Gemini API not configured',
             'fallback': True
         }
     
     try:
-        # Language names for prompt
         lang_names = {
             'hi': 'Hindi', 'en': 'English', 'ta': 'Tamil', 'te': 'Telugu',
             'bn': 'Bengali', 'mr': 'Marathi', 'gu': 'Gujarati', 
@@ -239,21 +198,24 @@ async def get_ai_price_analysis(
 
 Analyze the fair price for:
 - Product: {product_name}
-- Location: {location}
+- Location: {location}, India
 - Quantity: {quantity} units
 - Quality: {quality}
 - Current Date: {datetime.now().strftime("%B %Y")}
 
-Provide in {response_lang} language:
+Provide your response in {response_lang} language with:
 1. Estimated fair price per unit (in ₹)
-2. Price range (min-max)
-3. Key factors affecting price
-4. Negotiation tips for buyers
-5. Selling tips for vendors
+2. Price range (min-max in ₹)
+3. 2-3 key factors affecting price right now
+4. One negotiation tip for buyers
+5. One tip for vendors
 
-Keep response concise and practical for market vendors."""
+Keep response concise and practical. Use bullet points."""
 
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt
+        )
         
         return {
             'analysis': response.text,
@@ -273,12 +235,7 @@ Keep response concise and practical for market vendors."""
 
 
 def get_price_trend(product_id: str, location: str = "default") -> dict:
-    """
-    Get price trend for a product.
-    
-    Returns:
-        dict: {'trend': 'rising'|'falling'|'stable'|'seasonal', 'description': str}
-    """
+    """Get price trend for a product."""
     price_data = _get_price_data()
     market_prices = price_data.get('market_prices', {})
     product_prices = market_prices.get(product_id, {})
@@ -300,16 +257,7 @@ def get_price_trend(product_id: str, location: str = "default") -> dict:
 
 
 def list_products(category: Optional[str] = None, lang: str = "en") -> list:
-    """
-    List all available products, optionally filtered by category.
-    
-    Args:
-        category: Filter by category (vegetables, fruits, grains, spices)
-        lang: Language code for product names
-    
-    Returns:
-        list of product dicts with id, name, unit, image, category
-    """
+    """List all available products, optionally filtered by category."""
     products_data = _get_products_data()
     products = products_data.get('products', [])
     
@@ -330,15 +278,7 @@ def list_products(category: Optional[str] = None, lang: str = "en") -> list:
 
 
 def list_categories(lang: str = "en") -> list:
-    """
-    List all product categories.
-    
-    Args:
-        lang: Language code for category names
-    
-    Returns:
-        list of category dicts with id and name
-    """
+    """List all product categories."""
     products_data = _get_products_data()
     categories = products_data.get('categories', [])
     
@@ -349,8 +289,3 @@ def list_categories(lang: str = "en") -> list:
         }
         for c in categories
     ]
-
-
-# TODO: Add historical price tracking
-# TODO: Implement demand forecasting
-# TODO: Add price alerts feature
